@@ -12,6 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: Colors.grey[900],
         body: const Center(
@@ -77,8 +78,6 @@ class _DockState extends State<Dock> {
   }
 
   /// Метод для создания перетаскиваемого элемента.
-
-  /// Создает LongPressDraggable для каждой иконки, чтобы ее можно было перетаскивать.
   Widget _buildDraggableItem(IconData icon, int index) {
     return LongPressDraggable<IconData>(
       data: icon,
@@ -107,13 +106,22 @@ class _DockState extends State<Dock> {
           });
         },
         builder: (context, candidateData, rejectedData) {
-          // Если иконка перетаскивается, скрываем её в исходном положении
           final isDragging = _draggingIndex == index;
           final isHovered = candidateData.isNotEmpty;
+
           return AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
-            margin: EdgeInsets.symmetric(horizontal: isHovered ? 30 : 4),
+            margin: EdgeInsets.only(
+              left:
+                  isHovered && _draggingIndex != null && _draggingIndex! < index
+                      ? 30
+                      : 4,
+              right:
+                  isHovered && _draggingIndex != null && _draggingIndex! > index
+                      ? 30
+                      : 4,
+            ),
             child: isDragging ? const SizedBox.shrink() : _buildDockItem(icon),
           );
         },
@@ -122,8 +130,6 @@ class _DockState extends State<Dock> {
   }
 
   /// Метод для построения одного элемента в доке (иконки).
-
-  /// Принимает иконку и возвращает виджет, отображающий эту иконку в виде кнопки.
   Widget _buildDockItem(IconData icon) {
     return Container(
       constraints: const BoxConstraints(minWidth: 48),
